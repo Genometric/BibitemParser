@@ -14,6 +14,7 @@
         Phdthesis,
         Proceedings,
         Techreport,
-        Unpublished
+        Unpublished,
+        Unknown
     };
 }
