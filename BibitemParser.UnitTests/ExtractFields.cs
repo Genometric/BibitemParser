@@ -1,4 +1,6 @@
 using Genometric.BibitemParser.UnitTests.Model;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Genometric.BibitemParser.UnitTests
@@ -7,13 +9,13 @@ namespace Genometric.BibitemParser.UnitTests
     {
         private readonly Parser<Publication, Author> _parser;
 
-        private const string bibitemS1 = "@article{ID, author = {fName lName}, title = {A: title; on, some---topic}, journaltitle = {journaltitle}, date = {date}, }";
-        private const string bibitemS2 = "@article{id, title={a_title}, author={lname1, fname1 and lname2, fname2 and lname3, fname3}, journal={journal name}, year={2020}, publisher={publisher}}";
-        private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, date = {Oct 30, 2019}, }";
+        private const string bibitemS1 = "@article{ID, author = {lName fName}, title = {A: title; on, some---topic}, journaltitle = {journaltitle}, year = {2019}, doi={10.1109/TKDE.2018.2871031}}";
+        private const string bibitemS2 = "@article{id, title={a_title}, author={lname1, fname1 and lname2, fname2 and lname3, fname3}, journal={journal name}, publisher={publisher}}";
+        private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, year = {2020}, }";
         private const string bibitemS4 = "@Manual{,title = {my: title},author = {A. lName and B. lName},year = {2019},note = {I am optional},url = {https://https://genometric.github.io/MSPC/},}";
         private const string bibitemS5 = "@PhdThesis{,title = {my thesis title},author = {V J and A B. C and firstName LastName},url = {https://github.com/Genometric/MSPC/},school = {polimi},year = {2016},}";
         private const string bibitemS6 = "@Book{,title = {MSPC, CPSM},year = {2019},author = {V B. J and otherFirstName C. otherLastName}, publisher = {somepublisher},}";
-        private const string bibitemS7 = "@TechReport{,author = {abc efg and hjk lmn},title = {I am tec rep.},institution = {xyz, Dep. rnd},year = {2020},type = {Technical report},}";
+        private const string bibitemS7 = "@TechReport{,author = {abc efg and hjk lmn},title = {I am a tec rep.},institution = {xyz, Dep. rnd},year = {2020},type = {Technical report},}";
         private const string bibitemS8 = "@cannotguess{,author = {hmmm haaa},title = {aaa: bbb (ccc)},year = {2019},}";
 
         // This sample has line breaks (i.e., the '\r' and '\n' characters) 
@@ -23,13 +25,13 @@ namespace Genometric.BibitemParser.UnitTests
             @"@book{ID,
 	author = {fName M. lName},
 	title = {sometitle},
-	date = {2019},
+	year = {2019},
 }";
 
         public ExtractFields()
         {
             _parser = new Parser<Publication, Author>(
-                new PublicationConstructor(), 
+                new PublicationConstructor(),
                 new AuthorConstructor());
         }
 
@@ -43,14 +45,87 @@ namespace Genometric.BibitemParser.UnitTests
         [InlineData(bibitemS7, BibTexEntryType.Techreport)]
         [InlineData(bibitemS8, BibTexEntryType.Unknown)]
         [InlineData(bibitemS9, BibTexEntryType.Book)]
-        public void ExtractType(string bibitem, BibTexEntryType expectedType)
+        public void ExtractType(string bibitem, BibTexEntryType expValue)
         {
             // Act
             var success = _parser.TryParse(bibitem, out Publication pub);
 
             // Assert
             Assert.True(success);
-            Assert.Equal(expectedType, pub.Type);
+            Assert.Equal(expValue, pub.Type);
         }
+
+        [Theory]
+        [InlineData(bibitemS1, "A: title; on, some---topic")]
+        [InlineData(bibitemS2, "a_title")]
+        [InlineData(bibitemS3, "and a title")]
+        [InlineData(bibitemS4, "my: title")]
+        [InlineData(bibitemS5, "my thesis title")]
+        [InlineData(bibitemS6, "MSPC, CPSM")]
+        [InlineData(bibitemS7, "I am a tec rep.")]
+        [InlineData(bibitemS8, "aaa: bbb (ccc)")]
+        [InlineData(bibitemS9, "sometitle")]
+        public void ExtractTitle(string bibitem, string expValue)
+        {
+            // Act
+            var success = _parser.TryParse(bibitem, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            Assert.Equal(expValue, pub.Title);
+        }
+
+        [Theory]
+        [InlineData(bibitemS1, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS2, null)]
+        public void ExtractDOI(string bibitem, string expValue)
+        {
+            // Act
+            var success = _parser.TryParse(bibitem, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            Assert.Equal(expValue, pub.DOI);
+        }
+
+        [Theory]
+        [InlineData(bibitemS1, "lName fName")]
+        [InlineData(bibitemS2, "lname1 fname1", "lname2 fname2", "lname3 fname3")]
+        public void ExtractAuthors(string bibitem, string auth1, string auth2 = null, string auth3 = null)
+        {
+            // Arrange
+            static string[] splitName(string name)
+            {
+                return new string[] { name.Split(' ')[1], name.Split(' ')[0] };
+            }
+
+            var names = new List<string[]> { splitName(auth1) };
+            if (auth2 != null) names.Add(splitName(auth2));
+            if (auth3 != null) names.Add(splitName(auth3));
+
+            // Act
+            var success = _parser.TryParse(bibitem, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            foreach (var name in names)
+                Assert.Contains(pub.Authors, a => a.FirstName == name[0] && a.LastName == name[1]);
+        }
+
+        [Theory]
+        [InlineData(bibitemS1, 2019)]
+        [InlineData(bibitemS2, null)]
+        [InlineData(bibitemS3, 2020)]
+        public void ExtractYear(string bibitem, int? expValue)
+        {
+            // Act
+            var success = _parser.TryParse(bibitem, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            Assert.Equal(expValue, pub.Year);
+        }
+
+        // TODO: add a test to assert proper handling an invalid/malformed bibitem. 
     }
 }

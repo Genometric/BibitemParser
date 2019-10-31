@@ -19,6 +19,7 @@ namespace Genometric.BibitemParser
 
         private readonly IPublicationConstructor<P> _pubConstructor;
         private readonly IAuthorConstructor<A> _authorConstructor;
+        private Dictionary<string, string> _attributes;
 
         public char[] StopChars = new char[] { '\r', '\n', '\t' };
 
@@ -35,7 +36,7 @@ namespace Genometric.BibitemParser
             // its value to `Unknown` instead of failing parsing process. 
             TryGetType(groups["type"].Value, out BibTexEntryType bibTexEntryType);
 
-            if (!TryGetAttributes(groups["body"].Value, out Dictionary<string, string> attributes))
+            if (!TryGetAttributes(groups["body"].Value, out Dictionary<string, string> _attributes))
                 return false;
 
             // To support parsing bibitems without author name, 
@@ -43,23 +44,22 @@ namespace Genometric.BibitemParser
             // give, or the given section does not have any 
             // parse-able author name. 
             List<IAuthor> authors = null;
-            if (attributes.ContainsKey("author"))
-                TryGetAuthors(attributes["author"], out authors);
+            if (_attributes.ContainsKey("author"))
+                TryGetAuthors(_attributes["author"], out authors);
 
             publication = _pubConstructor.Construct(
                 type: bibTexEntryType,
-                doi: attributes.TryGetValue("doi", out string doi) ? doi : null,
-                title: attributes.TryGetValue("title", out string title) ? title : null,
+                doi: _attributes.TryGetValue("doi", out string doi) ? doi.Trim() : null,
+                title: _attributes.TryGetValue("title", out string title) ? title.Trim() : null,
                 authors: authors,
-                date: attributes.TryGetValue("date", out string date) ? date : null,
-                year: 1,
-                month: 1,
-                journal: attributes.TryGetValue("journal", out string journal) ? journal : null,
-                volume: attributes.TryGetValue("volume", out string volume) ? int.Parse(volume) : -1,
-                number: attributes.TryGetValue("number", out string number) ? int.Parse(number) : -1,
-                chapter: attributes.TryGetValue("chapter", out string chapter) ? chapter : null,
-                pages: attributes.TryGetValue("pages", out string pages) ? pages : null,
-                publisher: attributes.TryGetValue("publisher", out string publisher) ? publisher : null);
+                year: TryGetNullableInt("year"),
+                month: TryGetNullableInt("month"),
+                journal: _attributes.TryGetValue("journal", out string journal) ? journal.Trim() : null,
+                volume: TryGetNullableInt("volume"),
+                number: TryGetNullableInt("number"),
+                chapter: _attributes.TryGetValue("chapter", out string chapter) ? chapter.Trim() : null,
+                pages: _attributes.TryGetValue("pages", out string pages) ? pages.Trim() : null,
+                publisher: _attributes.TryGetValue("publisher", out string publisher) ? publisher.Trim() : null);
 
             return true;
         }
@@ -98,6 +98,14 @@ namespace Genometric.BibitemParser
             return true;
         }
 
+        private int? TryGetNullableInt(string input)
+        {
+            if (_attributes.TryGetValue(input, out string v))
+                if (int.TryParse(v, out int r))
+                    return r;
+            return null;
+        }
+
         private bool TryGetAuthors(string input, out List<IAuthor> authors)
         {
             // By default authors list is null, hence if no parse-able authors 
@@ -110,9 +118,17 @@ namespace Genometric.BibitemParser
             authors = new List<IAuthor>();
             foreach (var name in names)
             {
-                var sNames = name.Split(',');
+                // Sometimes first and last names are separated using ','. 
+                // Hence, if ',' exist, we assume it is the delimiter.
+                // This is a loose assumption, hence this part needs to 
+                // be improved. 
+                string[] sNames = null;
+                if (name.Contains(','))
+                    sNames = name.Split(',');
+                else
+                    sNames = name.Split(' ');
 
-                // At least first name should be given in order to create an instance of Author type.
+                // At least last name should be given in order to create an instance of Author type.
                 if (sNames.Length > 0)
                     authors.Add
                         (_authorConstructor.Construct(
