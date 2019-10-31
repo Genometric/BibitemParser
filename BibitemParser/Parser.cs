@@ -1,6 +1,7 @@
 ﻿using Genometric.BibitemParser.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Genometric.BibitemParser
@@ -100,8 +101,27 @@ namespace Genometric.BibitemParser
         private int? TryGetNullableInt(Dictionary<string, string> attributes, string input)
         {
             if (attributes.TryGetValue(input, out string v))
+            {
                 if (int.TryParse(v, out int r))
                     return r;
+                else if (input == "month")
+                {
+                    if (DateTime.TryParseExact(
+                        v, "MMMM",
+                        CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal,
+                        out DateTime month))
+                        return month.Month;
+                    else if (DateTime.TryParseExact(
+                        v, "MMM",
+                        CultureInfo.CurrentCulture, DateTimeStyles.AssumeLocal,
+                        out month))
+                        return month.Month;
+                }
+            }
+            else if (input == "number")
+            {
+                return TryGetNullableInt(attributes, "issue");
+            }
             return null;
         }
 
