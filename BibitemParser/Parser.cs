@@ -19,7 +19,6 @@ namespace Genometric.BibitemParser
 
         private readonly IPublicationConstructor<P> _pubConstructor;
         private readonly IAuthorConstructor<A> _authorConstructor;
-        private Dictionary<string, string> _attributes;
 
         public char[] StopChars = new char[] { '\r', '\n', '\t' };
 
@@ -36,7 +35,7 @@ namespace Genometric.BibitemParser
             // its value to `Unknown` instead of failing parsing process. 
             TryGetType(groups["type"].Value, out BibTexEntryType bibTexEntryType);
 
-            if (!TryGetAttributes(groups["body"].Value, out Dictionary<string, string> _attributes))
+            if (!TryGetAttributes(groups["body"].Value, out Dictionary<string, string> attributes))
                 return false;
 
             // To support parsing bibitems without author name, 
@@ -44,22 +43,22 @@ namespace Genometric.BibitemParser
             // give, or the given section does not have any 
             // parse-able author name. 
             List<IAuthor> authors = null;
-            if (_attributes.ContainsKey("author"))
-                TryGetAuthors(_attributes["author"], out authors);
-
+            if (attributes.ContainsKey("author"))
+                TryGetAuthors(attributes["author"], out authors);
+            ;
             publication = _pubConstructor.Construct(
                 type: bibTexEntryType,
-                doi: _attributes.TryGetValue("doi", out string doi) ? doi.Trim() : null,
-                title: _attributes.TryGetValue("title", out string title) ? title.Trim() : null,
+                doi: attributes.TryGetValue("doi", out string doi) ? doi.Trim() : null,
+                title: attributes.TryGetValue("title", out string title) ? title.Trim() : null,
                 authors: authors,
-                year: TryGetNullableInt("year"),
-                month: TryGetNullableInt("month"),
-                journal: _attributes.TryGetValue("journal", out string journal) ? journal.Trim() : null,
-                volume: TryGetNullableInt("volume"),
-                number: TryGetNullableInt("number"),
-                chapter: _attributes.TryGetValue("chapter", out string chapter) ? chapter.Trim() : null,
-                pages: _attributes.TryGetValue("pages", out string pages) ? pages.Trim() : null,
-                publisher: _attributes.TryGetValue("publisher", out string publisher) ? publisher.Trim() : null);
+                year: TryGetNullableInt(attributes, "year"),
+                month: TryGetNullableInt(attributes, "month"),
+                journal: attributes.TryGetValue("journal", out string journal) ? journal.Trim() : null,
+                volume: TryGetNullableInt(attributes, "volume"),
+                number: TryGetNullableInt(attributes, "number"),
+                chapter: attributes.TryGetValue("chapter", out string chapter) ? chapter.Trim() : null,
+                pages: attributes.TryGetValue("pages", out string pages) ? pages.Trim() : null,
+                publisher: attributes.TryGetValue("publisher", out string publisher) ? publisher.Trim() : null);
 
             return true;
         }
@@ -98,9 +97,9 @@ namespace Genometric.BibitemParser
             return true;
         }
 
-        private int? TryGetNullableInt(string input)
+        private int? TryGetNullableInt(Dictionary<string, string> attributes, string input)
         {
-            if (_attributes.TryGetValue(input, out string v))
+            if (attributes.TryGetValue(input, out string v))
                 if (int.TryParse(v, out int r))
                     return r;
             return null;
