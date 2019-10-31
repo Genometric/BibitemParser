@@ -20,12 +20,15 @@ namespace Genometric.BibitemParser
         private readonly IPublicationConstructor<P> _pubConstructor;
         private readonly IAuthorConstructor<A> _authorConstructor;
 
+        public char[] StopChars = new char[] { '\r', '\n', '\t' };
 
-        public bool TryParse(string bibItem, out P publication)
+
+        public bool TryParse(string bibitem, out P publication)
         {
             publication = default;
 
-            var groups = new Regex(@".*@(?<type>[^{]+){(?<id>[^,]+),(?<body>.+)}").Match(bibItem).Groups;
+            bibitem = RemoveStopChars(bibitem);
+            var groups = new Regex(@".*@(?<type>[^{]+){(?<id>[^,]*),(?<body>.+)}").Match(bibitem).Groups;
 
             // One option could be to fail parsing when `type` is invalid, 
             // but since many bibitems exist with un-specified type, we set 
@@ -59,6 +62,13 @@ namespace Genometric.BibitemParser
                 publisher: attributes.TryGetValue("publisher", out string publisher) ? publisher : null);
 
             return true;
+        }
+
+        private string RemoveStopChars(string bibitem)
+        {
+            foreach (var c in StopChars)
+                bibitem = bibitem.Replace(Convert.ToString(c), string.Empty);
+            return bibitem;
         }
 
         private static bool TryGetType(string input, out BibTexEntryType type)
