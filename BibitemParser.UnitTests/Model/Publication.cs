@@ -17,6 +17,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
         public string Chapter { get; }
         public string Pages { get; }
         public string Publisher { get; }
+        public List<IKeyword> Keywords { get; }
 
         public Publication(
             BibTexEntryType type, 
@@ -30,7 +31,8 @@ namespace Genometric.BibitemParser.UnitTests.Model
             int? number, 
             string chapter, 
             string pages, 
-            string publisher)
+            string publisher,
+            List<IKeyword> keywords)
         {
             Type = type;
             DOI = doi;
@@ -44,6 +46,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
             Chapter = chapter;
             Pages = pages;
             Publisher = publisher;
+            Keywords = keywords;
         }
     }
 }

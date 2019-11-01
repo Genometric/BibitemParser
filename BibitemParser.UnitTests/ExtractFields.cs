@@ -6,9 +6,9 @@ namespace Genometric.BibitemParser.UnitTests
 {
     public class ExtractFields
     {
-        private readonly Parser<Publication, Author> _parser;
+        private readonly Parser<Publication, Author, Keyword> _parser;
 
-        private const string bibitemS1 = "@article{ID, author = {lName fName}, title = {A: title; on, some---topic}, journal = {journaltitle}, year = {2019}, doi={10.1109/TKDE.2018.2871031}, number={21}, chapter={a chapter in the journal}}";
+        private const string bibitemS1 = "@article{ID, author = {lName fName}, title = {A: title; on, some---topic}, journal = {journaltitle}, year = {2019}, doi={10.1109/TKDE.2018.2871031}, number={21}, chapter={a chapter in the journal}, keywords={akeyword}}";
         private const string bibitemS2 = "@article{id, title={a_title}, author={lname1, fname1 and lname2, fname2 and lname3, fname3}, journal={journal name}, publisher={publisher}, volume = {10}, issue = {5}, pages = {123-456}}";
         private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, year = {2020}, pages={100--101} }";
         private const string bibitemS4 = "@Manual{,title = {my: title},author = {A. lName and B. lName},year = {2019},note = {I am optional},url = {https://https://genometric.github.io/MSPC/}, pages={ A001-6}}";
@@ -43,9 +43,10 @@ month={Oct},}";
 
         public ExtractFields()
         {
-            _parser = new Parser<Publication, Author>(
+            _parser = new Parser<Publication, Author, Keyword>(
                 new PublicationConstructor(),
-                new AuthorConstructor());
+                new AuthorConstructor(),
+                new KeywordConstructor());
         }
 
         [Fact]
@@ -59,6 +60,20 @@ month={Oct},}";
                 new string[] {"Jeremy",  "Goecks"},
                 new string[] {"Yashar",  "Deldjoo"},
                 new string[] {"Stefano", "Ceri"}
+            };
+
+            var keywords = new List<string>
+            {
+                "bioinformatics", "data analysis", "genetics", "genomics",
+                "indexing", "topology", "genomic interval expressions",
+                "semantic layer", "user-defined function", "sense-making",
+                "higher-lever reasoning", "region-based datasets", "logical layer",
+                "region calculus", "physical layer abstracts", "persistence technology",
+                "one-dimensional intervals incremental inverted index", "trilayer architecture",
+                "next generation indexing", "topological relations", "Di4",
+                "bioinformatics application", "Bioinformatics", "Genomics", "Tools",
+                "DNA", "Indexing", "Calculus", "Index structures",
+                "efficient query processing", "genomic data management"
             };
 
             // Act
@@ -77,6 +92,8 @@ month={Oct},}";
             Assert.Equal("2008-2021", pub.Pages);
             Assert.Equal("10.1109/TKDE.2018.2871031", pub.DOI);
             Assert.Equal(10, pub.Month);
+            foreach (var keyword in keywords)
+                Assert.Contains(pub.Keywords, k => k.Label == keyword);
         }
 
         [Theory]
@@ -267,6 +284,23 @@ month={Oct},}";
             // Assert
             Assert.True(success);
             Assert.Equal(expValue, pub.Publisher);
+        }
+
+        [Theory]
+        [InlineData(bibitemS1, "akeyword")]
+        public void ExtractKeyword(string bibitem, string expValue)
+        {
+            // Arrange
+            var keywords = new List<string> { expValue };
+
+            // Act
+            var success = _parser.TryParse(bibitem, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            Assert.True(success);
+            foreach (var keyword in keywords)
+                Assert.Contains(pub.Keywords, k => k.Label == keyword);
         }
 
         [Theory]

@@ -6,16 +6,21 @@ using System.Text.RegularExpressions;
 
 namespace Genometric.BibitemParser
 {
-    public class Parser<P, A>
+    public class Parser<P, A, K>
         where P : IPublication
         where A : IAuthor
+        where K : IKeyword
     {
         public Parser(
         IPublicationConstructor<P> publicationConstructor,
-        IAuthorConstructor<A> authorConstructor)
+        IAuthorConstructor<A> authorConstructor,
+        IKeywordConstructor<K> keywordConstructor)
         {
             _pubConstructor = publicationConstructor;
             _authorConstructor = authorConstructor;
+            _keywordConstructor = keywordConstructor;
+
+            KeywordDelimiter = ';';
 
             BibitemSplitRegex = @".*@(?<type>[^{]+){(?<id>[^,]*),(?<body>.+)}";
             BibitemBodyAttributesRegex = @"(?<attribute>[^{}]*)\s*=\s*{((?<value>[^{}]+)*)},*";
@@ -23,6 +28,7 @@ namespace Genometric.BibitemParser
 
         private readonly IPublicationConstructor<P> _pubConstructor;
         private readonly IAuthorConstructor<A> _authorConstructor;
+        private readonly IKeywordConstructor<K> _keywordConstructor;
 
         /// <summary>
         /// Sets and gets an array of characters which the parser 
@@ -84,6 +90,12 @@ namespace Genometric.BibitemParser
         /// </summary>
         public string BibitemBodyAttributesRegex { set; get; }
 
+        /// <summary>
+        /// Sets and gets the delimiter used in keywords. 
+        /// By default it is set to `;`. 
+        /// </summary>
+        public char KeywordDelimiter { set; get; }
+
 
         public bool TryParse(string bibitem, out P publication)
         {
@@ -107,7 +119,7 @@ namespace Genometric.BibitemParser
             List<IAuthor> authors = null;
             if (attributes.ContainsKey("author"))
                 TryGetAuthors(attributes["author"], out authors);
-            ;
+
             publication = _pubConstructor.Construct(
                 type: bibTexEntryType,
                 doi: attributes.TryGetValue("doi", out string doi) ? doi.Trim() : null,
@@ -120,7 +132,8 @@ namespace Genometric.BibitemParser
                 number: TryGetNullableInt(attributes, "number"),
                 chapter: attributes.TryGetValue("chapter", out string chapter) ? chapter.Trim() : null,
                 pages: attributes.TryGetValue("pages", out string pages) ? pages.Trim() : null,
-                publisher: attributes.TryGetValue("publisher", out string publisher) ? publisher.Trim() : null);
+                publisher: attributes.TryGetValue("publisher", out string publisher) ? publisher.Trim() : null,
+                keywords: TryGetKeywords(attributes, out List<IKeyword> keywords) ? keywords : null);
 
             return true;
         }
@@ -217,6 +230,23 @@ namespace Genometric.BibitemParser
             }
 
             return true;
+        }
+
+        private bool TryGetKeywords(Dictionary<string, string> attributes, out List<IKeyword> keywords)
+        {
+            keywords = null;
+            if (attributes.TryGetValue("keywords", out string input))
+            {
+                var words = input.Split(KeywordDelimiter);
+                if (words.Length == 0)
+                    return false;
+
+                keywords = new List<IKeyword>();
+                foreach (var word in words)
+                    keywords.Add(_keywordConstructor.Construct(word.Trim()));
+                return true;
+            }
+            return false;
         }
     }
 }

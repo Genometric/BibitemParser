@@ -17,7 +17,8 @@ namespace Genometric.BibitemParser.UnitTests.Model
             int? number,
             string chapter,
             string pages,
-            string publisher)
+            string publisher,
+            List<IKeyword> keywords)
         {
             return new Publication(
                 type,
@@ -31,7 +32,8 @@ namespace Genometric.BibitemParser.UnitTests.Model
                 number,
                 chapter,
                 pages,
-                publisher);
+                publisher,
+                keywords);
         }
     }
 }

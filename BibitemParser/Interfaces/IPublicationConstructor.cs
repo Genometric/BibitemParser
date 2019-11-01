@@ -17,6 +17,7 @@ namespace Genometric.BibitemParser.Interfaces
             int? number,
             string chapter,
             string pages,
-            string publisher);
+            string publisher,
+            List<IKeyword> keywords);
     }
 }
