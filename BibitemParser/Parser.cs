@@ -16,12 +16,73 @@ namespace Genometric.BibitemParser
         {
             _pubConstructor = publicationConstructor;
             _authorConstructor = authorConstructor;
+
+            BibitemSplitRegex = @".*@(?<type>[^{]+){(?<id>[^,]*),(?<body>.+)}";
+            BibitemBodyAttributesRegex = @"(?<attribute>[^{}]*)\s*=\s*{((?<value>[^{}]+)*)},*";
         }
 
         private readonly IPublicationConstructor<P> _pubConstructor;
         private readonly IAuthorConstructor<A> _authorConstructor;
 
+        /// <summary>
+        /// Sets and gets an array of characters which the parser 
+        /// removes before parsing the input bibitem.
+        /// </summary>
         public char[] StopChars = new char[] { '\r', '\n', '\t' };
+
+        /// <summary>
+        /// <para>
+        /// Sets and gets the regular expression pattern which the parser
+        /// uses to extract bibitem type (e.g., Article, Misc; see 
+        /// <see cref="BibTexEntryType"/> enum for the supported types) and 
+        /// body (e.g., `author = {LastName, FirstName}, title = {Manuscript Title}`). 
+        /// </para>
+        /// 
+        /// <para>The `type` and `body` group names must preserve throughout 
+        /// changes to the expression pattern. </para>
+        /// 
+        /// <para>
+        /// The default regular expression matches the patterns such as
+        /// the following: 
+        /// <list type="bullet">
+        /// <item>
+        /// <description>Dummy: @article{12, author={LastName1, FirstName1 and LastName2, FirstName2}, journal={IEEE TKDE}, title={Di4}, year={2019}, volume={31}, number={10}, pages={2008-2021}, keywords={indexing;Index structures}, doi={10.1109/TKDE.2018.2871031}, ISSN={}, month={Oct},}</description> 
+        /// </item>
+        /// <item>
+        /// <description>Real: @ARTICLE{8468044, author={Jalili, Vahid and Matteucci, Matteo and Goecks, Jeremy and Deldjoo, Yashar and Ceri, Stefano}, journal={IEEE Transactions on Knowledge and Data Engineering}, title={Next Generation Indexing for Genomic Intervals}, year={2019}, volume={31}, number={10}, pages={2008-2021}, keywords={bioinformatics;data analysis; genetics;genomics;indexing;topology;genomic interval expressions;semantic layer; user-defined function; sense-making;higher-lever reasoning; region-based datasets; logical layer; region calculus; physical layer abstracts;persistence technology; one-dimensional intervals incremental inverted index;trilayer architecture; next generation indexing;topological relations; Di4;bioinformatics application; Bioinformatics;Genomics;Tools;DNA;Indexing;Calculus;Index structures; efficient query processing;genomic data management}, doi={10.1109/TKDE.2018.2871031}, ISSN={}, month={Oct},}</description> 
+        /// </item>
+        /// </list>
+        /// Note that first and last name of authors can be space or comma delimited,
+        /// and different author names are separated by ` and `. 
+        /// </para>
+        /// </summary>
+        public string BibitemSplitRegex { set; get; }
+
+        /// <summary>
+        /// <para>
+        /// Sets and gets the regular expression patterns which the parser
+        /// uses to extract attributes (e.g., author names) from the input bibitem body 
+        /// (see <see cref="BibitemSplitRegex"/>).
+        /// </para>
+        /// 
+        /// <para>
+        /// The `attribute` and `value` group names must preserve throughout 
+        /// changes to the expression pattern. 
+        /// </para>
+        /// 
+        /// <para>
+        /// An example input to this pattern is as the following:
+        /// </para>
+        /// <code>
+        /// att1={val1}, att2={val2}
+        /// </code>
+        /// <para>
+        /// and this pattern should extract `att1={val1}` and `att2={val2}` 
+        /// matches, and separate them as `att1` and `att2` as `attribute` group and
+        /// `val1` and `val2` as `value` groups.
+        /// </para>
+        /// </summary>
+        public string BibitemBodyAttributesRegex { set; get; }
 
 
         public bool TryParse(string bibitem, out P publication)
@@ -29,7 +90,7 @@ namespace Genometric.BibitemParser
             publication = default;
 
             bibitem = RemoveStopChars(bibitem);
-            var groups = new Regex(@".*@(?<type>[^{]+){(?<id>[^,]*),(?<body>.+)}").Match(bibitem).Groups;
+            var groups = new Regex(BibitemSplitRegex).Match(bibitem).Groups;
 
             // One option could be to fail parsing when `type` is invalid, 
             // but since many bibitems exist with un-specified type, we set 
@@ -81,16 +142,16 @@ namespace Genometric.BibitemParser
             else return true;
         }
 
-        private static bool TryGetAttributes(string input, out Dictionary<string, string> attributes)
+        private bool TryGetAttributes(string input, out Dictionary<string, string> attributes)
         {
             attributes = new Dictionary<string, string>();
-            MatchCollection matches = Regex.Matches(input, @"(?<a>[^{}]*)\s*=\s*{((?<v>[^{}]+)+)},*");
+            MatchCollection matches = Regex.Matches(input, BibitemBodyAttributesRegex);
 
             if (matches.Count == 0)
                 return false;
 
             foreach (Match match in matches)
-                attributes.Add(match.Groups["a"].Value.Trim(), match.Groups["v"].Value.Trim());
+                attributes.Add(match.Groups["attribute"].Value.Trim(), match.Groups["value"].Value.Trim());
 
             if (attributes.Count == 0)
                 return false;
