@@ -10,8 +10,8 @@ namespace Genometric.BibitemParser.UnitTests
 
         private const string bibitemS1 = "@article{ID, author = {lName fName}, title = {A: title; on, some---topic}, journal = {journaltitle}, year = {2019}, doi={10.1109/TKDE.2018.2871031}, number={21}, chapter={a chapter in the journal}, keywords={akeyword}}";
         private const string bibitemS2 = "@article{id, title={a_title}, author={lname1, fname1 and lname2, fname2 and lname3, fname3}, journal={journal name}, publisher={publisher}, volume = {10}, issue = {5}, pages = {123-456}}";
-        private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, year = {2020}, pages={100--101} }";
-        private const string bibitemS4 = "@Manual{,title = {my: title},author = {A. lName and B. lName},year = {2019},note = {I am optional},url = {https://https://genometric.github.io/MSPC/}, pages={ A001-6}}";
+        private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, year = {2020}, pages={100--101}, keywords={firstkeyword, secondkeyword }";
+        private const string bibitemS4 = "@Manual{,title = {my: title},author = {A. lName and B. lName},year = {2019},note = {I am optional},url = {https://https://genometric.github.io/MSPC/}, pages={ A001-6}}, keywords={firstkeyword; secondkeyword}}";
         private const string bibitemS5 = "@PhdThesis{,title = {my thesis title},author = {V J and A B. C and firstName LastName},url = {https://github.com/Genometric/MSPC/},school = {polimi},year = {2016},}";
         private const string bibitemS6 = "@Book{,title = {MSPC, CPSM},year = {2019},author = {V B. J and otherFirstName C. otherLastName}, publisher = {somepublisher},month = {9}, chapter=  {chapter in the book}}";
         private const string bibitemS7 = "@TechReport{,author = {abc efg and hjk lmn},title = {I am a tec rep.},institution = {xyz, Dep. rnd},year = {2020},type = {Technical report}, month = {December},}";
@@ -288,6 +288,7 @@ month={Oct},}";
 
         [Theory]
         [InlineData(bibitemS1, "akeyword")]
+        [InlineData(bibitemS2, null)]
         public void ExtractKeyword(string bibitem, string expValue)
         {
             // Arrange
@@ -300,6 +301,28 @@ month={Oct},}";
             Assert.True(success);
             Assert.True(success);
             foreach (var keyword in keywords)
+                Assert.Contains(pub.Keywords, k => k.Label == keyword);
+        }
+
+        [Theory]
+        [InlineData(bibitemS3, ',', "firstkeyword, secondkeyword")]
+        [InlineData(bibitemS4, ';', "firstkeyword; secondkeyword")]
+        public void AssertAppreciationofKeywordDelimiter(string bibitem, char delimiter, string expValue)
+        {
+            // Arrange
+            var expKeywords = new List<string>();
+            var words = expValue.Split(delimiter);
+            foreach (var word in words)
+                expKeywords.Add(word.Trim());
+
+            // Act
+            _parser.KeywordsDelimiter = delimiter;
+            var success = _parser.TryParse(bibitem, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            Assert.True(success);
+            foreach (var keyword in expKeywords)
                 Assert.Contains(pub.Keywords, k => k.Label == keyword);
         }
 

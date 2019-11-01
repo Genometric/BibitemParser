@@ -20,7 +20,7 @@ namespace Genometric.BibitemParser
             _authorConstructor = authorConstructor;
             _keywordConstructor = keywordConstructor;
 
-            KeywordDelimiter = ';';
+            KeywordsDelimiter = ';';
 
             BibitemSplitRegex = @".*@(?<type>[^{]+){(?<id>[^,]*),(?<body>.+)}";
             BibitemBodyAttributesRegex = @"(?<attribute>[^{}]*)\s*=\s*{((?<value>[^{}]+)*)},*";
@@ -94,7 +94,7 @@ namespace Genometric.BibitemParser
         /// Sets and gets the delimiter used in keywords. 
         /// By default it is set to `;`. 
         /// </summary>
-        public char KeywordDelimiter { set; get; }
+        public char KeywordsDelimiter { set; get; }
 
 
         public bool TryParse(string bibitem, out P publication)
@@ -237,7 +237,7 @@ namespace Genometric.BibitemParser
             keywords = null;
             if (attributes.TryGetValue("keywords", out string input))
             {
-                var words = input.Split(KeywordDelimiter);
+                var words = input.Split(KeywordsDelimiter);
                 if (words.Length == 0)
                     return false;
 
