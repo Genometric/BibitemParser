@@ -8,7 +8,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
         public BibTexEntryType Type { get; }
         public string DOI { get; }
         public string Title { get; }
-        public List<IAuthor> Authors { get; }
+        public ICollection<IAuthor> Authors { get; }
         public int? Year { get; }
         public int? Month { get; }
         public string Journal { get; }
@@ -17,13 +17,13 @@ namespace Genometric.BibitemParser.UnitTests.Model
         public string Chapter { get; }
         public string Pages { get; }
         public string Publisher { get; }
-        public List<IKeyword> Keywords { get; }
+        public ICollection<IKeyword> Keywords { get; }
 
         public Publication(
             BibTexEntryType type, 
             string doi, 
-            string title, 
-            List<IAuthor> authors,
+            string title,
+            ICollection<IAuthor> authors,
             int? year,
             int? month, 
             string journal, 
@@ -32,7 +32,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
             string chapter, 
             string pages, 
             string publisher,
-            List<IKeyword> keywords)
+            ICollection<IKeyword> keywords)
         {
             Type = type;
             DOI = doi;

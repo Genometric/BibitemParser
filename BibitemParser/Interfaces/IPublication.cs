@@ -7,7 +7,7 @@ namespace Genometric.BibitemParser.Interfaces
         public BibTexEntryType Type { get; }
         public string DOI { get; }
         public string Title { get; }
-        public List<IAuthor> Authors { get; }
+        public ICollection<IAuthor> Authors { get; }
         public int? Year { get; }
         public int? Month { get; }
         public string Journal { get; }
@@ -16,6 +16,6 @@ namespace Genometric.BibitemParser.Interfaces
         public string Chapter { get; }
         public string Pages { get; }
         public string Publisher { get; }
-        public List<IKeyword> Keywords { get; }
+        public ICollection<IKeyword> Keywords { get; }
     }
 }
