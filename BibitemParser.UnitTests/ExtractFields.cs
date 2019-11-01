@@ -269,6 +269,15 @@ month={Oct},}";
             Assert.Equal(expValue, pub.Publisher);
         }
 
-        // TODO: add a test to assert proper handling an invalid/malformed bibitem. 
+        [Theory]
+        [InlineData("ID, author = {lName fName}, title = {title")]
+        public void FailParsingMalformedInput(string malformedInput)
+        {
+            // Act 
+            var success = _parser.TryParse(malformedInput, out Publication pub);
+
+            // Assert
+            Assert.False(success);
+        }
     }
 }
