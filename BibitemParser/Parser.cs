@@ -7,12 +7,12 @@ using System.Text.RegularExpressions;
 namespace Genometric.BibitemParser
 {
     public class Parser<P, A, K>
-        where P : IPublication
+        where P : IPublication<A, K>
         where A : IAuthor
         where K : IKeyword
     {
         public Parser(
-        IPublicationConstructor<P> publicationConstructor,
+        IPublicationConstructor<A, K, P> publicationConstructor,
         IAuthorConstructor<A> authorConstructor,
         IKeywordConstructor<K> keywordConstructor)
         {
@@ -26,7 +26,7 @@ namespace Genometric.BibitemParser
             BibitemBodyAttributesRegex = @"(?<attribute>[^{}]*)\s*=\s*{((?<value>[^{}]+)*)},*";
         }
 
-        private readonly IPublicationConstructor<P> _pubConstructor;
+        private readonly IPublicationConstructor<A, K, P> _pubConstructor;
         private readonly IAuthorConstructor<A> _authorConstructor;
         private readonly IKeywordConstructor<K> _keywordConstructor;
 
@@ -116,7 +116,7 @@ namespace Genometric.BibitemParser
             // we do not return false when Author section is not 
             // give, or the given section does not have any 
             // parse-able author name. 
-            List<IAuthor> authors = null;
+            List<A> authors = null;
             if (attributes.ContainsKey("author"))
                 TryGetAuthors(attributes["author"], out authors);
 
@@ -133,7 +133,7 @@ namespace Genometric.BibitemParser
                 chapter: attributes.TryGetValue("chapter", out string chapter) ? chapter.Trim() : null,
                 pages: attributes.TryGetValue("pages", out string pages) ? pages.Trim() : null,
                 publisher: attributes.TryGetValue("publisher", out string publisher) ? publisher.Trim() : null,
-                keywords: TryGetKeywords(attributes, out List<IKeyword> keywords) ? keywords : null);
+                keywords: TryGetKeywords(attributes, out List<K> keywords) ? keywords : null);
 
             return true;
         }
@@ -199,7 +199,7 @@ namespace Genometric.BibitemParser
             return null;
         }
 
-        private bool TryGetAuthors(string input, out List<IAuthor> authors)
+        private bool TryGetAuthors(string input, out List<A> authors)
         {
             // By default authors list is null, hence if no parse-able authors 
             // are determined, then a null list is returned.
@@ -208,7 +208,7 @@ namespace Genometric.BibitemParser
             if (names.Length == 0)
                 return false;
 
-            authors = new List<IAuthor>();
+            authors = new List<A>();
             foreach (var name in names)
             {
                 // Sometimes first and last names are separated using ','. 
@@ -232,7 +232,7 @@ namespace Genometric.BibitemParser
             return true;
         }
 
-        private bool TryGetKeywords(Dictionary<string, string> attributes, out List<IKeyword> keywords)
+        private bool TryGetKeywords(Dictionary<string, string> attributes, out List<K> keywords)
         {
             keywords = null;
             if (attributes.TryGetValue("keywords", out string input))
@@ -241,7 +241,7 @@ namespace Genometric.BibitemParser
                 if (words.Length == 0)
                     return false;
 
-                keywords = new List<IKeyword>();
+                keywords = new List<K>();
                 foreach (var word in words)
                     keywords.Add(_keywordConstructor.Construct(word.Trim()));
                 return true;

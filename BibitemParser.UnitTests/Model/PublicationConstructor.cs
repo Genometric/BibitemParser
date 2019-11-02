@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Genometric.BibitemParser.UnitTests.Model
 {
-    public class PublicationConstructor : IPublicationConstructor<Publication>
+    public class PublicationConstructor : IPublicationConstructor<Author, Keyword, Publication>
     {
         public Publication Construct(
-            BibTexEntryType type, 
+            BibTexEntryType type,
             string doi,
             string title,
-            List<IAuthor> authors,
+            List<Author> authors,
             int? year,
             int? month,
             string journal,
@@ -18,7 +18,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
             string chapter,
             string pages,
             string publisher,
-            List<IKeyword> keywords)
+            List<Keyword> keywords)
         {
             return new Publication(
                 type,

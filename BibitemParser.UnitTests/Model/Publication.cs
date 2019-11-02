@@ -3,12 +3,11 @@ using System.Collections.Generic;
 
 namespace Genometric.BibitemParser.UnitTests.Model
 {
-    public class Publication : IPublication
+    public class Publication : IPublication<Author, Keyword>
     {
         public BibTexEntryType Type { get; }
         public string DOI { get; }
         public string Title { get; }
-        public ICollection<IAuthor> Authors { get; }
         public int? Year { get; }
         public int? Month { get; }
         public string Journal { get; }
@@ -17,13 +16,14 @@ namespace Genometric.BibitemParser.UnitTests.Model
         public string Chapter { get; }
         public string Pages { get; }
         public string Publisher { get; }
-        public ICollection<IKeyword> Keywords { get; }
+        public ICollection<Author> Authors { get; }
+        public ICollection<Keyword> Keywords { get; }
 
         public Publication(
             BibTexEntryType type, 
             string doi, 
             string title,
-            ICollection<IAuthor> authors,
+            ICollection<Author> authors,
             int? year,
             int? month, 
             string journal, 
@@ -32,7 +32,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
             string chapter, 
             string pages, 
             string publisher,
-            ICollection<IKeyword> keywords)
+            ICollection<Keyword> keywords)
         {
             Type = type;
             DOI = doi;

@@ -2,14 +2,16 @@
 
 namespace Genometric.BibitemParser.Interfaces
 {
-    public interface IPublicationConstructor<out I>
-        where I : IPublication
+    public interface IPublicationConstructor<A, K, out I>
+        where A : IAuthor
+        where K : IKeyword
+        where I : IPublication<A, K>
     {
         I Construct(
             BibTexEntryType type,
             string doi,
             string title,
-            List<IAuthor> authors,
+            List<A> authors,
             int? year,
             int? month,
             string journal,
@@ -18,6 +20,6 @@ namespace Genometric.BibitemParser.Interfaces
             string chapter,
             string pages,
             string publisher,
-            List<IKeyword> keywords);
+            List<K> keywords);
     }
 }
