@@ -23,7 +23,11 @@
 
     <RepositoryUrl>https://github.com/Genometric/BibitemParser</RepositoryUrl>
 
-    <PackageTags>LaTex; BibTex; BibItem; Bib; Parser</PackageTags>
+    <PackageTags>LaTex; BibTex; BibItem; Bibtexparser; bibtex-entry; bibliography; Bib; Parser</PackageTags>
+
+    <PackageIconUrl>https://raw.githubusercontent.com/Genometric/BibitemParser/dev/logo/logo.png</PackageIconUrl>
+
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>

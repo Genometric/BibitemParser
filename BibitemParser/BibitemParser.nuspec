@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Genometric.BibitemParser</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>https://github.com/Genometric/BibitemParser/graphs/contributors</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/Genometric/BibitemParser/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Genometric/BibitemParser</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Parses a LaTeX BibTeX bibitem to a C# object.</description>
+    <copyright>Copyright 2019</copyright>
+    <tags>LaTex; BibTex; BibItem; Bibtexparser; bibtex-entry; bibliography; Bib; Parser</tags>
+  </metadata>
+</package>
