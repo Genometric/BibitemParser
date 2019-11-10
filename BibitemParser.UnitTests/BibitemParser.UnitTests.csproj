@@ -28,6 +28,8 @@
     <PackageIconUrl>https://raw.githubusercontent.com/Genometric/BibitemParser/dev/logo/logo.png</PackageIconUrl>
 
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
