@@ -23,7 +23,7 @@ namespace Genometric.BibitemParser
             KeywordsDelimiter = ';';
 
             BibitemSplitRegex = @".*@(?<type>[^{]+){(?<id>[^,]*),(?<body>.+)}";
-            BibitemBodyAttributesRegex = @"(?<attribute>[^{}]*)\s*=\s*{((?<value>[^{}]+)*)},*";
+            BibitemBodyAttributesRegex = @"(?<attribute>[^{}]*)\s*=\s*\{(?<value>(?:[^{}]|(?<open>\{)|(?<-open>\}))*(?(open)(?!)))\}(,|$)";
         }
 
         private readonly IPublicationConstructor<A, K, P> _pubConstructor;
