@@ -10,6 +10,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
         public string Title { get; }
         public int? Year { get; }
         public int? Month { get; }
+        public int? Day { get; }
         public string Journal { get; }
         public int? Volume { get; }
         public int? Number { get; }
@@ -25,7 +26,8 @@ namespace Genometric.BibitemParser.UnitTests.Model
             string title,
             ICollection<Author> authors,
             int? year,
-            int? month, 
+            int? month,
+            int? day,
             string journal, 
             int? volume, 
             int? number, 
@@ -40,6 +42,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
             Authors = authors;
             Year = year;
             Month = month;
+            Day = day;
             Journal = journal;
             Volume = volume;
             Number = number;

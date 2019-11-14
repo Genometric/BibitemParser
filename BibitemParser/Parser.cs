@@ -127,6 +127,7 @@ namespace Genometric.BibitemParser
                 authors: authors,
                 year: TryGetNullableInt(attributes, "year"),
                 month: TryGetNullableInt(attributes, "month"),
+                day: TryGetNullableInt(attributes, "day"),
                 journal: attributes.TryGetValue("journal", out string journal) ? journal.Trim() : null,
                 volume: TryGetNullableInt(attributes, "volume"),
                 number: TryGetNullableInt(attributes, "number"),

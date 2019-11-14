@@ -15,7 +15,7 @@ namespace Genometric.BibitemParser.UnitTests
         private const string bibitemS5 = "@PhdThesis{,title = {my thesis title},author = {V J and A B. C and firstName LastName},url = {https://github.com/Genometric/MSPC/},school = {polimi},year = {2016},}";
         private const string bibitemS6 = "@Book{,title = {MSPC, CPSM},year = {2019},author = {V B. J and otherFirstName C. otherLastName}, publisher = {somepublisher},month = {9}, chapter=  {chapter in the book}}";
         private const string bibitemS7 = "@TechReport{,author = {abc efg and hjk lmn},title = {I am a tec rep.},institution = {xyz, Dep. rnd},year = {2020},type = {Technical report}, month = {December},}";
-        private const string bibitemS8 = "@cannotguess{,author = {hmmm haaa},title = {aaa: bbb (ccc)},year = {2019}, month = {Aug},}";
+        private const string bibitemS8 = "@cannotguess{,author = {hmmm haaa},title = {aaa: bbb (ccc)},year = {2019}, month = {Aug}, day={1}}";
 
         // This sample has line breaks (i.e., the '\r' and '\n' characters) 
         // and tabs (i.e., the '\t' character); hence can assert if parser can 
@@ -200,6 +200,19 @@ month={Oct},}";
             // Assert
             Assert.True(success);
             Assert.Equal(expValue, pub.Month);
+        }
+
+        [Theory]
+        [InlineData(bibitemS1, null)]
+        [InlineData(bibitemS8, 1)]
+        public void ExtractDay(string bibitem, int? expValue)
+        {
+            // Act
+            var success = _parser.TryParse(bibitem, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            Assert.Equal(expValue, pub.Day);
         }
 
         [Theory]

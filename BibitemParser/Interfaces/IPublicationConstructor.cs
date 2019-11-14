@@ -14,6 +14,7 @@ namespace Genometric.BibitemParser.Interfaces
             List<A> authors,
             int? year,
             int? month,
+            int? day,
             string journal,
             int? volume,
             int? number,

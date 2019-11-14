@@ -12,6 +12,7 @@ namespace Genometric.BibitemParser.Interfaces
         public ICollection<A> Authors { get; }
         public int? Year { get; }
         public int? Month { get; }
+        public int? Day { get; }
         public string Journal { get; }
         public int? Volume { get; }
         public int? Number { get; }
