@@ -129,7 +129,7 @@ namespace Genometric.BibitemParser
                 month: TryGetNullableInt(attributes, "month"),
                 day: TryGetNullableInt(attributes, "day"),
                 journal: attributes.TryGetValue("journal", out string journal) ? journal.Trim() : null,
-                volume: TryGetNullableInt(attributes, "volume"),
+                volume: attributes.TryGetValue("volume", out string vol) ? vol.Trim() : null,
                 number: TryGetNullableInt(attributes, "number"),
                 chapter: attributes.TryGetValue("chapter", out string chapter) ? chapter.Trim() : null,
                 pages: attributes.TryGetValue("pages", out string pages) ? pages.Trim() : null,

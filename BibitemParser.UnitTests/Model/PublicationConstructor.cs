@@ -14,7 +14,7 @@ namespace Genometric.BibitemParser.UnitTests.Model
             int? month,
             int? day,
             string journal,
-            int? volume,
+            string volume,
             int? number,
             string chapter,
             string pages,

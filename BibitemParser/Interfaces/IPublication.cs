@@ -14,7 +14,7 @@ namespace Genometric.BibitemParser.Interfaces
         public int? Month { get; }
         public int? Day { get; }
         public string Journal { get; }
-        public int? Volume { get; }
+        public string Volume { get; }
         public int? Number { get; }
         public string Chapter { get; }
         public string Pages { get; }
