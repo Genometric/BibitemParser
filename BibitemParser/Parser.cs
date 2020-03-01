@@ -122,7 +122,7 @@ namespace Genometric.BibitemParser
 
             publication = _pubConstructor.Construct(
                 type: bibTexEntryType,
-                doi: attributes.TryGetValue("doi", out string doi) ? doi.Trim() : null,
+                doi: attributes.TryGetValue("doi", out string doi) ? FormatDOI(doi) : null,
                 title: attributes.TryGetValue("title", out string title) ? title.Trim() : null,
                 authors: authors,
                 year: TryGetNullableInt(attributes, "year"),
@@ -154,6 +154,11 @@ namespace Genometric.BibitemParser
                 return false;
             }
             else return true;
+        }
+
+        private static string FormatDOI(string doi)
+        {
+            return doi.Trim().Replace("doi:", string.Empty, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private bool TryGetAttributes(string input, out Dictionary<string, string> attributes)
