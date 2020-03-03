@@ -181,7 +181,9 @@ namespace Genometric.BibitemParser
                 return false;
 
             foreach (Match match in matches)
-                attributes.Add(match.Groups["attribute"].Value.Trim(), match.Groups["value"].Value.Trim());
+                attributes.Add(
+                    match.Groups["attribute"].Value.Trim().ToLowerInvariant(),
+                    match.Groups["value"].Value.Trim());
 
             if (attributes.Count == 0)
                 return false;
