@@ -31,6 +31,28 @@ namespace Genometric.BibitemParser
         private readonly IKeywordConstructor<K> _keywordConstructor;
 
         /// <summary>
+        /// An enumeration of Bibtex fields to be extracted 
+        /// from a Bibtex item.
+        /// </summary>
+        public enum BibtexFields
+        {
+            Author,
+            Title,
+            Year,
+            Month,
+            Day,
+            DOI,
+            Number,
+            Volume,
+            Issue,
+            Chapter,
+            Journal,
+            Pages,
+            Publisher,
+            Keywords
+        };
+
+        /// <summary>
         /// Sets and gets an array of characters which the parser 
         /// removes before parsing the input bibitem.
         /// </summary>
@@ -109,7 +131,7 @@ namespace Genometric.BibitemParser
             // its value to `Unknown` instead of failing parsing process. 
             TryGetType(groups["type"].Value, out BibTexEntryType bibTexEntryType);
 
-            if (!TryGetAttributes(groups["body"].Value, out Dictionary<string, string> attributes))
+            if (!TryGetAttributes(groups["body"].Value, out Dictionary<BibtexFields, string> attributes))
                 return false;
 
             // To support parsing bibitems without author name, 
@@ -117,23 +139,23 @@ namespace Genometric.BibitemParser
             // give, or the given section does not have any 
             // parse-able author name. 
             List<A> authors = null;
-            if (attributes.ContainsKey("author"))
-                TryGetAuthors(attributes["author"], out authors);
+            if (attributes.ContainsKey(BibtexFields.Author))
+                TryGetAuthors(attributes[BibtexFields.Author], out authors);
 
             publication = _pubConstructor.Construct(
                 type: bibTexEntryType,
-                doi: attributes.TryGetValue("doi", out string doi) ? FormatDOI(doi) : null,
-                title: attributes.TryGetValue("title", out string title) ? title.Trim() : null,
+                doi: attributes.TryGetValue(BibtexFields.DOI, out string doi) ? FormatDOI(doi) : null,
+                title: attributes.TryGetValue(BibtexFields.Title, out string title) ? title.Trim() : null,
                 authors: authors,
-                year: TryGetNullableInt(attributes, "year"),
-                month: TryGetNullableInt(attributes, "month"),
-                day: TryGetNullableInt(attributes, "day"),
-                journal: attributes.TryGetValue("journal", out string journal) ? journal.Trim() : null,
-                volume: attributes.TryGetValue("volume", out string vol) ? vol.Trim() : null,
-                number: TryGetNullableInt(attributes, "number"),
-                chapter: attributes.TryGetValue("chapter", out string chapter) ? chapter.Trim() : null,
-                pages: attributes.TryGetValue("pages", out string pages) ? pages.Trim() : null,
-                publisher: attributes.TryGetValue("publisher", out string publisher) ? publisher.Trim() : null,
+                year: TryGetNullableInt(attributes, BibtexFields.Year),
+                month: TryGetNullableInt(attributes, BibtexFields.Month),
+                day: TryGetNullableInt(attributes, BibtexFields.Day),
+                journal: attributes.TryGetValue(BibtexFields.Journal, out string journal) ? journal.Trim() : null,
+                volume: attributes.TryGetValue(BibtexFields.Volume, out string vol) ? vol.Trim() : null,
+                number: TryGetNullableInt(attributes, BibtexFields.Number),
+                chapter: attributes.TryGetValue(BibtexFields.Chapter, out string chapter) ? chapter.Trim() : null,
+                pages: attributes.TryGetValue(BibtexFields.Pages, out string pages) ? pages.Trim() : null,
+                publisher: attributes.TryGetValue(BibtexFields.Publisher, out string publisher) ? publisher.Trim() : null,
                 keywords: TryGetKeywords(attributes, out List<K> keywords) ? keywords : null);
 
             return true;
@@ -170,9 +192,9 @@ namespace Genometric.BibitemParser
                 return doi;
         }
 
-        private bool TryGetAttributes(string input, out Dictionary<string, string> attributes)
+        private bool TryGetAttributes(string input, out Dictionary<BibtexFields, string> attributes)
         {
-            attributes = new Dictionary<string, string>();
+            attributes = new Dictionary<BibtexFields, string>();
             MatchCollection matches = Regex.Matches(input, BibitemBodyAttributesRegex);
 
             if (matches.Count == 0)
@@ -180,8 +202,9 @@ namespace Genometric.BibitemParser
 
             foreach (Match match in matches)
             {
-                var attribute = match.Groups["attribute"].Value.Trim().ToLowerInvariant();
-                
+                if (!Enum.TryParse(match.Groups["attribute"].Value.Trim(), true, out BibtexFields attribute))
+                    continue;
+
                 // Not removing `{` and `}` from author names because
                 // they can start or end with _accent_ characters which 
                 // can be provided using LaTeX syntax (e.g., "{\~e}").
@@ -192,7 +215,7 @@ namespace Genometric.BibitemParser
                 // - Should remove brackets: {abc}
                 // - Should not remove brackets: {\"e}fg 
                 char[] stopChars;
-                if (attribute == "author")
+                if (attribute == BibtexFields.Author)
                     stopChars = new char[] { ' ' };
                 else
                     stopChars = new char[] { ' ', '{', '}' };
@@ -208,13 +231,13 @@ namespace Genometric.BibitemParser
             return true;
         }
 
-        private int? TryGetNullableInt(Dictionary<string, string> attributes, string input)
+        private int? TryGetNullableInt(Dictionary<BibtexFields, string> attributes, BibtexFields field)
         {
-            if (attributes.TryGetValue(input, out string v))
+            if (attributes.TryGetValue(field, out string v))
             {
                 if (int.TryParse(v, out int r))
                     return r;
-                else if (input == "month")
+                else if (field == BibtexFields.Month)
                 {
                     if (DateTime.TryParseExact(
                         v, "MMMM",
@@ -228,9 +251,9 @@ namespace Genometric.BibitemParser
                         return month.Month;
                 }
             }
-            else if (input == "number")
+            else if (field == BibtexFields.Number)
             {
-                return TryGetNullableInt(attributes, "issue");
+                return TryGetNullableInt(attributes, BibtexFields.Issue);
             }
             return null;
         }
@@ -268,10 +291,10 @@ namespace Genometric.BibitemParser
             return true;
         }
 
-        private bool TryGetKeywords(Dictionary<string, string> attributes, out List<K> keywords)
+        private bool TryGetKeywords(Dictionary<BibtexFields, string> attributes, out List<K> keywords)
         {
             keywords = null;
-            if (attributes.TryGetValue("keywords", out string input))
+            if (attributes.TryGetValue(BibtexFields.Keywords, out string input))
             {
                 var words = input.Split(KeywordsDelimiter);
                 if (words.Length == 0)
