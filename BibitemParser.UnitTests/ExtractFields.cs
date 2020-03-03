@@ -9,8 +9,8 @@ namespace Genometric.BibitemParser.UnitTests
         private readonly Parser<Publication, Author, Keyword> _parser;
 
         private const string bibitemS1 = "@article{ID, author = {lName fName}, title = {A: title; on, some---topic}, journal = {journaltitle}, year = {2019}, doi={DoI:10.1109/TKDE.2018.2871031}, number={21}, chapter={a chapter in the journal}, keywords={akeyword}}";
-        private const string bibitemS2 = "@article{id, title={a_title}, author={lname1, fname1 and lname{{\\\"e}}, fname2 and lname3, fname{\\\"3}}, journal={journal name}, publisher={publisher}, volume = {10}, issue = {5}, pages = {123-456}}";
-        private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, year = {2020}, pages={100--101}, keywords={firstkeyword, secondkeyword }}";
+        private const string bibitemS2 = "@article{id, title={a_title}, author={lname1, fname1 and lname{{\\\"e}}, fname2 and lname3, fname{\\\"3}}, doi={{10.1109/TKDE.2018.2871031}} journal={journal name}, publisher={publisher}, volume = {10}, issue = {5}, pages = {123-456}}";
+        private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, doi={{DOI:10.1109/TKDE.2018.2871031}} year = {2020}, pages={100--101}, keywords={firstkeyword, secondkeyword }}";
         private const string bibitemS4 = "@Manual{,title = {my: title},author = {A. lName and B. lName},year = {2019},note = {I am optional},url = {https://https://genometric.github.io/MSPC/}, pages={ A001-6}, keywords={firstkeyword; secondkeyword}, volume = {11-A}}";
         private const string bibitemS5 = "@PhdThesis{,title = {my thesis title},author = {V J and A B. C and firstName LastName},url = {https://github.com/Genometric/MSPC/},school = {polimi},year = {2016},}";
         private const string bibitemS6 = "@Book{,title = {MSPC, CPSM},year = {2019},author = {V B. J and otherFirstName C. otherLastName}, publisher = {somepublisher},month = {9}, chapter=  {chapter in the book}}";
@@ -138,7 +138,9 @@ month={Oct},}";
 
         [Theory]
         [InlineData(bibitemS1, "10.1109/TKDE.2018.2871031")]
-        [InlineData(bibitemS2, null)]
+        [InlineData(bibitemS2, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS3, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS4, null)]
         [InlineData(bibitemS10, "10.1109/TKDE.2018.2871031")]
         public void ExtractDOI(string bibitem, string expValue)
         {
