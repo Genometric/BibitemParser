@@ -158,9 +158,7 @@ namespace Genometric.BibitemParser
 
         private static string FormatDOI(string doi)
         {
-            doi = doi.Trim(new char[] { '{', '}' })
-                     .Replace("doi:", string.Empty, StringComparison.InvariantCultureIgnoreCase);
-
+            doi = doi.Replace("doi:", string.Empty, StringComparison.InvariantCultureIgnoreCase);
             doi = doi.Replace("http://doi.org/", string.Empty, StringComparison.InvariantCultureIgnoreCase);
             doi = doi.Replace("https://doi.org/", string.Empty, StringComparison.InvariantCultureIgnoreCase);
             doi = doi.Replace("http://dx.doi.org/", string.Empty, StringComparison.InvariantCultureIgnoreCase);
@@ -181,9 +179,28 @@ namespace Genometric.BibitemParser
                 return false;
 
             foreach (Match match in matches)
+            {
+                var attribute = match.Groups["attribute"].Value.Trim().ToLowerInvariant();
+                
+                // Not removing `{` and `}` from author names because
+                // they can start or end with _accent_ characters which 
+                // can be provided using LaTeX syntax (e.g., "{\~e}").
+                // However, this approach is not universal, because 
+                // (a) it does not apply to other fields such as title,
+                // and (b) it does not differentiate between formatting
+                // and non-formatting brackets. For instance:
+                // - Should remove brackets: {abc}
+                // - Should not remove brackets: {\"e}fg 
+                char[] stopChars;
+                if (attribute == "author")
+                    stopChars = new char[] { ' ' };
+                else
+                    stopChars = new char[] { ' ', '{', '}' };
+
                 attributes.Add(
-                    match.Groups["attribute"].Value.Trim().ToLowerInvariant(),
-                    match.Groups["value"].Value.Trim());
+                    attribute,
+                    match.Groups["value"].Value.Trim(stopChars));
+            }
 
             if (attributes.Count == 0)
                 return false;
