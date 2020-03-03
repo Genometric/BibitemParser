@@ -11,23 +11,24 @@ namespace Genometric.BibitemParser.UnitTests
         private const string bibitemS1 = "@article{ID, author = {lName fName}, title = {A: title; on, some---topic}, journal = {journaltitle}, year = {2019}, doi={DoI:10.1109/TKDE.2018.2871031}, number={21}, chapter={a chapter in the journal}, keywords={akeyword}}";
         private const string bibitemS2 = "@article{id, title={a_title}, author={lname1, fname1 and lname{{\\\"e}}, fname2 and lname3, fname{\\\"3}}, doi={{10.1109/TKDE.2018.2871031}}, journal={journal name}, publisher={publisher}, volume = {10}, issue = {5}, pages = {123-456}}";
         private const string bibitemS3 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, doi={{DOI:10.1109/TKDE.2018.2871031}}, year = {2020}, pages={100--101}, keywords={firstkeyword, secondkeyword }}";
-        private const string bibitemS4 = "@Manual{,title = {my: title},author = {A. lName and B. lName},year = {2019},note = {I am optional},url = {https://https://genometric.github.io/MSPC/}, pages={ A001-6}, doi={NA}, keywords={firstkeyword; secondkeyword}, volume = {11-A}}";
-        private const string bibitemS5 = "@PhdThesis{,title = {my thesis title},author = {V J and A B. C and firstName LastName},url = {https://github.com/Genometric/MSPC/},school = {polimi},year = {2016},}";
-        private const string bibitemS6 = "@Book{,title = {MSPC, CPSM},year = {2019},author = {V B. J and otherFirstName C. otherLastName}, publisher = {somepublisher},month = {9}, chapter=  {chapter in the book}}";
-        private const string bibitemS7 = "@TechReport{,author = {abc efg and hjk lmn},title = {I am a tec rep.},institution = {xyz, Dep. rnd},year = {2020},type = {Technical report}, month = {December},}";
-        private const string bibitemS8 = "@cannotguess{,author = {hmmm haaa},title = {aaa: bbb (ccc)},year = {2019}, month = {Aug}, day={1}}";
+        private const string bibitemS4 = "@misc{this_is_my_id, author = {first_name1, m.lastname1 and firstname_2, lastname2}, title = {and a title }, doi={http://doi.org/10.1109/TKDE.2018.2871031}, year = {2020}, pages={100--101}, keywords={firstkeyword, secondkeyword }}";
+        private const string bibitemS5 = "@Manual{,title = {my: title},author = {A. lName and B. lName},year = {2019},note = {I am optional},url = {https://https://genometric.github.io/MSPC/}, pages={ A001-6}, doi={NA}, keywords={firstkeyword; secondkeyword}, volume = {11-A}}";
+        private const string bibitemS6 = "@PhdThesis{,title = {my thesis title},author = {V J and A B. C and firstName LastName},url = {https://github.com/Genometric/MSPC/},doi = {http://dx.doi.org/10.1109/TKDE.2018.2871031},school = {polimi},year = {2016},}";
+        private const string bibitemS7 = "@Book{,title = {MSPC, CPSM},year = {2019},author = {V B. J and otherFirstName C. otherLastName}, doi = {https://doi.org/10.1109/TKDE.2018.2871031}, publisher = {somepublisher},month = {9}, chapter=  {chapter in the book}}";
+        private const string bibitemS8 = "@TechReport{,author = {abc efg and hjk lmn},title = {I am a tec rep.},institution = {xyz, Dep. rnd},year = {2020},doi = {https://dx.doi.org/10.1109/TKDE.2018.2871031},type = {Technical report}, month = {December},}";
+        private const string bibitemS9 = "@cannotguess{,author = {hmmm haaa},title = {aaa: bbb (ccc)},year = {2019}, month = {Aug}, day={1}}";
 
         // This sample has line breaks (i.e., the '\r' and '\n' characters) 
         // and tabs (i.e., the '\t' character); hence can assert if parser can 
         // still parse data while such characters are present. 
-        private const string bibitemS9 =
+        private const string bibitemS10 =
             @"@book{ID,
 	author = {fName M. lName},
 	title = {sometitle},
 	year = {2019},
 }";
 
-        private const string bibitemS10 =
+        private const string bibitemS11 =
             @"@ARTICLE{8468044,
 author={Jalili, Vahid and Matteucci, Matteo and Goecks, Jeremy and Deldjoo, Yashar and Ceri, Stefano},
 journal={IEEE Transactions on Knowledge and Data Engineering},
@@ -77,7 +78,7 @@ month={Oct},}";
             };
 
             // Act
-            var success = _parser.TryParse(bibitemS10, out Publication pub);
+            var success = _parser.TryParse(bibitemS11, out Publication pub);
 
             // Assert
             Assert.True(success);
@@ -100,12 +101,12 @@ month={Oct},}";
         [InlineData(bibitemS1, BibTexEntryType.Article)]
         [InlineData(bibitemS2, BibTexEntryType.Article)]
         [InlineData(bibitemS3, BibTexEntryType.Misc)]
-        [InlineData(bibitemS4, BibTexEntryType.Manual)]
-        [InlineData(bibitemS5, BibTexEntryType.Phdthesis)]
-        [InlineData(bibitemS6, BibTexEntryType.Book)]
-        [InlineData(bibitemS7, BibTexEntryType.Techreport)]
-        [InlineData(bibitemS8, BibTexEntryType.Unknown)]
-        [InlineData(bibitemS9, BibTexEntryType.Book)]
+        [InlineData(bibitemS5, BibTexEntryType.Manual)]
+        [InlineData(bibitemS6, BibTexEntryType.Phdthesis)]
+        [InlineData(bibitemS7, BibTexEntryType.Book)]
+        [InlineData(bibitemS8, BibTexEntryType.Techreport)]
+        [InlineData(bibitemS9, BibTexEntryType.Unknown)]
+        [InlineData(bibitemS10, BibTexEntryType.Book)]
         public void ExtractType(string bibitem, BibTexEntryType expValue)
         {
             // Act
@@ -120,12 +121,12 @@ month={Oct},}";
         [InlineData(bibitemS1, "A: title; on, some---topic")]
         [InlineData(bibitemS2, "a_title")]
         [InlineData(bibitemS3, "and a title")]
-        [InlineData(bibitemS4, "my: title")]
-        [InlineData(bibitemS5, "my thesis title")]
-        [InlineData(bibitemS6, "MSPC, CPSM")]
-        [InlineData(bibitemS7, "I am a tec rep.")]
-        [InlineData(bibitemS8, "aaa: bbb (ccc)")]
-        [InlineData(bibitemS9, "sometitle")]
+        [InlineData(bibitemS5, "my: title")]
+        [InlineData(bibitemS6, "my thesis title")]
+        [InlineData(bibitemS7, "MSPC, CPSM")]
+        [InlineData(bibitemS8, "I am a tec rep.")]
+        [InlineData(bibitemS9, "aaa: bbb (ccc)")]
+        [InlineData(bibitemS10, "sometitle")]
         public void ExtractTitle(string bibitem, string expValue)
         {
             // Act
@@ -140,8 +141,12 @@ month={Oct},}";
         [InlineData(bibitemS1, "10.1109/TKDE.2018.2871031")]
         [InlineData(bibitemS2, "10.1109/TKDE.2018.2871031")]
         [InlineData(bibitemS3, "10.1109/TKDE.2018.2871031")]
-        [InlineData(bibitemS4, null)]
-        [InlineData(bibitemS10, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS4, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS5, null)]
+        [InlineData(bibitemS6, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS7, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS8, "10.1109/TKDE.2018.2871031")]
+        [InlineData(bibitemS11, "10.1109/TKDE.2018.2871031")]
         public void ExtractDOI(string bibitem, string expValue)
         {
             // Act
@@ -192,9 +197,9 @@ month={Oct},}";
 
         [Theory]
         [InlineData(bibitemS1, null)]
-        [InlineData(bibitemS6, 9)]
-        [InlineData(bibitemS7, 12)]
-        [InlineData(bibitemS8, 8)]
+        [InlineData(bibitemS7, 9)]
+        [InlineData(bibitemS8, 12)]
+        [InlineData(bibitemS9, 8)]
         public void ExtractMonth(string bibitem, int? expValue)
         {
             // Act
@@ -207,7 +212,7 @@ month={Oct},}";
 
         [Theory]
         [InlineData(bibitemS1, null)]
-        [InlineData(bibitemS8, 1)]
+        [InlineData(bibitemS9, 1)]
         public void ExtractDay(string bibitem, int? expValue)
         {
             // Act
@@ -235,7 +240,7 @@ month={Oct},}";
         [Theory]
         [InlineData(bibitemS2, "10")]
         [InlineData(bibitemS3, null)]
-        [InlineData(bibitemS4, "11-A")]
+        [InlineData(bibitemS5, "11-A")]
         public void ExtractVolume(string bibitem, string expValue)
         {
             // Act
@@ -262,7 +267,7 @@ month={Oct},}";
 
         [Theory]
         [InlineData(bibitemS1, "a chapter in the journal")]
-        [InlineData(bibitemS6, "chapter in the book")]
+        [InlineData(bibitemS7, "chapter in the book")]
         [InlineData(bibitemS2, null)]
         public void ExtractChapter(string bibitem, string expValue)
         {
@@ -278,7 +283,7 @@ month={Oct},}";
         [InlineData(bibitemS1, null)]
         [InlineData(bibitemS2, "123-456")]
         [InlineData(bibitemS3, "100--101")]
-        [InlineData(bibitemS4, "A001-6")]
+        [InlineData(bibitemS5, "A001-6")]
         public void ExtractPages(string bibitem, string expValue)
         {
             // Act
@@ -292,7 +297,7 @@ month={Oct},}";
         [Theory]
         [InlineData(bibitemS1, null)]
         [InlineData(bibitemS2, "publisher")]
-        [InlineData(bibitemS6, "somepublisher")]
+        [InlineData(bibitemS7, "somepublisher")]
         public void ExtractPublisher(string bibitem, string expValue)
         {
             // Act
@@ -325,7 +330,7 @@ month={Oct},}";
 
         [Theory]
         [InlineData(bibitemS3, ',', "firstkeyword, secondkeyword")]
-        [InlineData(bibitemS4, ';', "firstkeyword; secondkeyword")]
+        [InlineData(bibitemS5, ';', "firstkeyword; secondkeyword")]
         public void AssertAppreciationofKeywordDelimiter(string bibitem, char delimiter, string expValue)
         {
             // Arrange
