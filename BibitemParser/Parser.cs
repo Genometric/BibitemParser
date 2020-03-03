@@ -161,6 +161,11 @@ namespace Genometric.BibitemParser
             doi = doi.Trim(new char[] { '{', '}' })
                      .Replace("doi:", string.Empty, StringComparison.InvariantCultureIgnoreCase);
 
+            doi = doi.Replace("http://doi.org/", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            doi = doi.Replace("https://doi.org/", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            doi = doi.Replace("http://dx.doi.org/", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            doi = doi.Replace("https://dx.doi.org/", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+
             if (string.Equals(doi, "na", StringComparison.InvariantCultureIgnoreCase))
                 return null;
             else
