@@ -158,7 +158,8 @@ namespace Genometric.BibitemParser
 
         private static string FormatDOI(string doi)
         {
-            return doi.Trim().Replace("doi:", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            return doi.Trim(new char[] { '{', '}' })
+                      .Replace("doi:", string.Empty, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private bool TryGetAttributes(string input, out Dictionary<string, string> attributes)
