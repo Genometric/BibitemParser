@@ -98,6 +98,55 @@ month={Oct},}";
                 Assert.Contains(pub.Keywords, k => k.Label == keyword);
         }
 
+        [Fact]
+        public void ConcreteConstructor()
+        {
+            // Arrange
+            var names = new List<string[]>
+            {
+                new string[] {"Vahid",   "Jalili"},
+                new string[] {"Matteo",  "Matteucci"},
+                new string[] {"Jeremy",  "Goecks"},
+                new string[] {"Yashar",  "Deldjoo"},
+                new string[] {"Stefano", "Ceri"}
+            };
+
+            var keywords = new List<string>
+            {
+                "bioinformatics", "data analysis", "genetics", "genomics",
+                "indexing", "topology", "genomic interval expressions",
+                "semantic layer", "user-defined function", "sense-making",
+                "higher-lever reasoning", "region-based datasets", "logical layer",
+                "region calculus", "physical layer abstracts", "persistence technology",
+                "one-dimensional intervals incremental inverted index", "trilayer architecture",
+                "next generation indexing", "topological relations", "Di4",
+                "bioinformatics application", "Bioinformatics", "Genomics", "Tools",
+                "DNA", "Indexing", "Calculus", "Index structures",
+                "efficient query processing", "genomic data management"
+            };
+
+            var parser = new Parser();
+
+            // Act
+            var success = parser.TryParse(bibitemS10, out Publication pub);
+
+            // Assert
+            Assert.True(success);
+            Assert.Equal(BibTexEntryType.Article, pub.Type);
+            foreach (var name in names)
+                Assert.Contains(pub.Authors, a => a.FirstName == name[0] && a.LastName == name[1]);
+            Assert.Equal("IEEE Transactions on Knowledge and Data Engineering", pub.Journal);
+            Assert.Equal("Next Generation Indexing for Genomic Intervals", pub.Title);
+            Assert.Equal(2019, pub.Year);
+            Assert.Equal("31", pub.Volume);
+            Assert.Equal(10, pub.Number);
+            Assert.Equal("2008-2021", pub.Pages);
+            Assert.Equal("10.1109/TKDE.2018.2871031", pub.DOI);
+            Assert.Equal(10, pub.Month);
+            foreach (var keyword in keywords)
+                Assert.Contains(pub.Keywords, k => k.Label == keyword);
+        }
+
         [Theory]
         [InlineData(bibitemS00, BibTexEntryType.Article)]
         [InlineData(bibitemS01, BibTexEntryType.Article)]
