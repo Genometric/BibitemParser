@@ -1,4 +1,5 @@
-using Genometric.BibitemParser.UnitTests.Model;
+using Genometric.BibitemParser.Constructors;
+using Genometric.BibitemParser.Model;
 using System.Collections.Generic;
 using Xunit;
 

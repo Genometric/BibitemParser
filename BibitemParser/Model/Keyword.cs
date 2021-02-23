@@ -1,6 +1,6 @@
 ﻿using Genometric.BibitemParser.Interfaces;
 
-namespace Genometric.BibitemParser.UnitTests.Model
+namespace Genometric.BibitemParser.Model
 {
     public class Keyword : IKeyword
     {

@@ -12,7 +12,7 @@
     <PackageProjectUrl>https://github.com/Genometric/BibitemParser</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Genometric/BibitemParser</RepositoryUrl>
     <Copyright>MIT License</Copyright>
-    <Version>2.3.0</Version>
+    <Version>2.4.0</Version>
 	<PackageIcon>logo.png</PackageIcon>
 	<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

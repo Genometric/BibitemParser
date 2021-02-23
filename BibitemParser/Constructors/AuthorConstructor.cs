@@ -1,6 +1,7 @@
 ﻿using Genometric.BibitemParser.Interfaces;
+using Genometric.BibitemParser.Model;
 
-namespace Genometric.BibitemParser.UnitTests.Model
+namespace Genometric.BibitemParser.Constructors
 {
     public class AuthorConstructor : IAuthorConstructor<Author>
     {

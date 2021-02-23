@@ -1,7 +1,8 @@
 ﻿using Genometric.BibitemParser.Interfaces;
+using Genometric.BibitemParser.Model;
 using System.Collections.Generic;
 
-namespace Genometric.BibitemParser.UnitTests.Model
+namespace Genometric.BibitemParser.Constructors
 {
     public class PublicationConstructor : IPublicationConstructor<Author, Keyword, Publication>
     {
@@ -21,21 +22,23 @@ namespace Genometric.BibitemParser.UnitTests.Model
             string publisher,
             List<Keyword> keywords)
         {
-            return new Publication(
-                type,
-                doi,
-                title,
-                authors,
-                year,
-                month,
-                day,
-                journal,
-                volume,
-                number,
-                chapter,
-                pages,
-                publisher,
-                keywords);
+            return new Publication()
+            {
+                Type = type,
+                DOI = doi,
+                Title = title,
+                Authors = authors,
+                Year = year,
+                Month = month,
+                Day = day,
+                Journal = journal,
+                Volume = volume,
+                Number = number,
+                Chapter = chapter,
+                Pages = pages,
+                Publisher = publisher,
+                Keywords = keywords
+            };
         }
     }
 }
