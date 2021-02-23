@@ -30,6 +30,8 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 
     <Version>2.5.0</Version>
+
+    <PackageReleaseNotes>https://github.com/Genometric/BibitemParser/blob/master/ReleaseNotes.rst</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

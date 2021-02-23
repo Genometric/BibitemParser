@@ -16,7 +16,7 @@
 	<PackageIcon>logo.png</PackageIcon>
 	<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<PackageReleaseNotes>Change volume type from nullable-int to string.</PackageReleaseNotes>
+	<PackageReleaseNotes>https://github.com/Genometric/BibitemParser/blob/master/ReleaseNotes.rst</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
